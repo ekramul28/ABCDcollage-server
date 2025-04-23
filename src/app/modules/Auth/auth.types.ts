@@ -1,5 +1,3 @@
-import { JwtPayload } from "jsonwebtoken";
-
 export enum UserRole {
   ADMIN = "admin",
   TEACHER = "teacher",
@@ -7,7 +5,15 @@ export enum UserRole {
   STAFF = "staff",
 }
 
-export interface AuthUser extends JwtPayload {
+// JWT payload type
+export interface CustomJwtPayload {
+  userId: number;
+  role: UserRole;
+  iat?: number;
+  exp?: number;
+}
+
+export interface AuthUser extends CustomJwtPayload {
   userId: number;
   role: UserRole;
 }
@@ -49,19 +55,11 @@ export interface UserData {
   updatedAt: Date;
 }
 
-// JWT payload type
-export interface JwtPayload {
-  userId: number;
-  role: UserRole;
-  iat?: number;
-  exp?: number;
-}
-
 // Extend Express Request type to include user property
 declare global {
   namespace Express {
     interface Request {
-      user: JwtPayload;
+      user: AuthUser;
     }
   }
 }
