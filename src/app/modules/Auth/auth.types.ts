@@ -1,8 +1,15 @@
+import { JwtPayload } from "jsonwebtoken";
+
 export enum UserRole {
   ADMIN = "admin",
   TEACHER = "teacher",
   STUDENT = "student",
   STAFF = "staff",
+}
+
+export interface AuthUser extends JwtPayload {
+  userId: number;
+  role: UserRole;
 }
 
 export interface LoginCredentials {
@@ -48,4 +55,13 @@ export interface JwtPayload {
   role: UserRole;
   iat?: number;
   exp?: number;
+}
+
+// Extend Express Request type to include user property
+declare global {
+  namespace Express {
+    interface Request {
+      user: JwtPayload;
+    }
+  }
 }
