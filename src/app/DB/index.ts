@@ -1,23 +1,42 @@
+import { Sequelize } from "sequelize";
 import config from "../config";
-import { USER_ROLE } from "../modules/User/user.constant";
-import { User } from "../modules/User/user.model";
+
+const sequelize = new Sequelize({
+  dialect: "postgres",
+  host: config.database.host,
+  port: config.database.port,
+  username: config.database.user,
+  password: config.database.password,
+  database: config.database.name,
+  logging: false,
+});
+
+export { sequelize };
+
+// Seed super admin
+import { User } from "../modules/auth/auth.model";
+import { UserRole } from "../modules/auth/auth.types";
 
 const superUser = {
-  id: "0001",
+  name: "Super Admin",
   email: "mdekramulhassan168@gmail.com",
   password: config.super_admin_password,
-  needsPasswordChange: false,
-  role: USER_ROLE.superAdmin,
-  status: "in-progress",
-  isDeleted: false,
+  role: UserRole.SUPER_ADMIN,
+  isActive: true,
 };
 
 const seedSuperAdmin = async () => {
-  //when database is connected, we will check is there any user who is super admin
-  const isSuperAdminExits = await User.findOne({ role: USER_ROLE.superAdmin });
+  try {
+    const isSuperAdminExists = await User.findOne({
+      where: { role: UserRole.SUPER_ADMIN },
+    });
 
-  if (!isSuperAdminExits) {
-    await User.create(superUser);
+    if (!isSuperAdminExists) {
+      await User.create(superUser);
+      console.log("Super admin created successfully");
+    }
+  } catch (error) {
+    console.error("Error seeding super admin:", error);
   }
 };
 
