@@ -4,8 +4,10 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config";
 import AppError from "../errors/AppError";
 import { TUserRole } from "../modules/user/user.interface";
-import { User } from "../modules/user/user.model";
+
 import catchAsync from "../utils/catchAsync";
+import { User } from "../modules/user/user.model";
+import { UserRole } from "../modules/auth/auth.types";
 
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -62,7 +64,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
       );
     }
 
-    req.user = decoded as JwtPayload & { role: string };
+    req.user = decoded as JwtPayload & { role: UserRole; userId: number };
     next();
   });
 };

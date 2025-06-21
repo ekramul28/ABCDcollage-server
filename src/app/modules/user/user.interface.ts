@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Model } from "mongoose";
-import { USER_ROLE } from "./user.constant";
+import { UserRole } from "../auth/auth.types";
 
 export interface TUser {
   id: string;
@@ -8,7 +8,7 @@ export interface TUser {
   password: string;
   needsPasswordChange: boolean;
   passwordChangedAt?: Date;
-  role: "superAdmin" | "admin" | "teacher";
+  role: UserRole;
   status: "in-progress" | "blocked";
   isDeleted: boolean;
 }
@@ -27,4 +27,4 @@ export interface UserModel extends Model<TUser> {
   ): boolean;
 }
 
-export type TUserRole = keyof typeof USER_ROLE;
+export type TUserRole = keyof typeof UserRole;

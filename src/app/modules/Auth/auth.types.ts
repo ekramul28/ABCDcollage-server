@@ -1,9 +1,7 @@
 export enum UserRole {
-  SUPER_ADMIN = "super_admin",
-  ADMIN = "admin",
-  TEACHER = "teacher",
-  STUDENT = "student",
-  STAFF = "staff",
+  SUPER_ADMIN = "SUPER_ADMIN",
+  ADMIN = "ADMIN",
+  TEACHER = "TEACHER",
 }
 
 // JWT payload type
@@ -54,13 +52,4 @@ export interface UserData {
   semester?: number;
   createdAt: Date;
   updatedAt: Date;
-}
-
-// Extend Express Request type to include user property
-declare global {
-  namespace Express {
-    interface Request {
-      user: AuthUser;
-    }
-  }
 }

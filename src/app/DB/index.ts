@@ -17,13 +17,13 @@ export { connectDB };
 
 // Seed super admin
 import { User } from "../modules/user/user.model";
-import { USER_ROLE } from "../modules/user/user.constant";
+import { UserRole } from "../modules/auth/auth.types";
 
 const superUser = {
   id: "SUPER_ADMIN_001",
   email: "mdekramulhassan168@gmail.com",
   password: config.super_admin_password || "superadmin123",
-  role: USER_ROLE.superAdmin,
+  role: UserRole.SUPER_ADMIN,
   status: "in-progress",
   isDeleted: false,
 };
@@ -31,7 +31,7 @@ const superUser = {
 const seedSuperAdmin = async () => {
   try {
     const isSuperAdminExists = await User.findOne({
-      role: USER_ROLE.superAdmin,
+      role: UserRole.SUPER_ADMIN,
     });
 
     if (!isSuperAdminExists) {

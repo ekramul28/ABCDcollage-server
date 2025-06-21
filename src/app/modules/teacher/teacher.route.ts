@@ -1,7 +1,7 @@
 import express from "express";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
-import { USER_ROLE } from "../user/user.constant";
+import { UserRole } from "../auth/auth.types";
 import { TeacherControllers } from "./teacher.controller";
 import { updateTeacherValidationSchema } from "./teacher.validation";
 
@@ -9,20 +9,20 @@ const router = express.Router();
 
 router.get(
   "/:id",
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.teacher),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TEACHER),
   TeacherControllers.getSingleTeacher
 );
 
 router.patch(
   "/:id",
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validateRequest(updateTeacherValidationSchema),
   TeacherControllers.updateTeacher
 );
 
 router.delete(
   "/:id",
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   TeacherControllers.deleteTeacher
 );
 

@@ -1,18 +1,18 @@
 import express, { NextFunction, Request, Response } from "express";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
-import { USER_ROLE } from "./user.constant";
 import { UserControllers } from "./user.controller";
 import { createAdminValidationSchema } from "../admin/admin.validation";
 import { createTeacherValidationSchema } from "../teacher/teacher.validation";
 import { UserValidation } from "./user.validation";
 import { upload } from "../../utils/sendImageToCloudinary";
+import { UserRole } from "../auth/auth.types";
 
 const router = express.Router();
 
 router.post(
   "/create-teacher",
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req.body.data);
@@ -24,7 +24,7 @@ router.post(
 
 router.post(
   "/create-admin",
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req.body.data);
@@ -36,14 +36,14 @@ router.post(
 
 router.post(
   "/change-status/:id",
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validateRequest(UserValidation.changeStatusValidationSchema),
   UserControllers.changeStatus
 );
 
 router.get(
   "/me",
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.teacher),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TEACHER),
   UserControllers.getMe
 );
 
