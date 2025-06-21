@@ -6,6 +6,7 @@ import { UserControllers } from "./user.controller";
 import { createAdminValidationSchema } from "../admin/admin.validation";
 import { createTeacherValidationSchema } from "../teacher/teacher.validation";
 import { UserValidation } from "./user.validation";
+import { upload } from "../../utils/sendImageToCloudinary";
 
 const router = express.Router();
 

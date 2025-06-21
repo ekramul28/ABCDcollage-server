@@ -7,11 +7,12 @@ import { UserSearchableFields } from "./user.constant";
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
 import config from "../../config";
-import { TTeacher } from "../teacher/teacher.interface";
 import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
 import { generateAdminId, generateTeacherId } from "./user.utils";
 import { TAdmin } from "../admin/admin.interface";
 import { Admin } from "../admin/admin.model";
+import { Teacher } from "../teacher/teacher.model";
+import { TTeacher } from "../teacher/teacher.interface";
 
 const createTeacherIntoDB = async (
   file: any,
@@ -24,9 +25,9 @@ const createTeacherIntoDB = async (
   //if password is not given , use deafult password
   userData.password = password || (config.default_password as string);
 
-  //set faculty role
+  //set teacher role
   userData.role = "teacher";
-  //set faculty email
+  //set teacher email
   userData.email = payload.email;
 
   const session = await mongoose.startSession();
@@ -47,7 +48,7 @@ const createTeacherIntoDB = async (
     // create a user (transaction-1)
     const newUser = await User.create([userData], { session }); // array
 
-    //create a faculty
+    //create a teacher
     if (!newUser.length) {
       throw new AppError(httpStatus.BAD_REQUEST, "Failed to create user");
     }
@@ -55,18 +56,18 @@ const createTeacherIntoDB = async (
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id; //reference _id
 
-    // create a faculty (transaction-2)
+    // create a teacher (transaction-2)
 
-    const newFaculty = await Teacher.create([payload], { session });
+    const newTeacher = await Teacher.create([payload], { session });
 
-    if (!newFaculty.length) {
-      throw new AppError(httpStatus.BAD_REQUEST, "Failed to create faculty");
+    if (!newTeacher.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Failed to create teacher");
     }
 
     await session.commitTransaction();
     await session.endSession();
 
-    return newFaculty;
+    return newTeacher;
   } catch (err: any) {
     await session.abortTransaction();
     await session.endSession();
@@ -133,7 +134,7 @@ const createAdminIntoDB = async (
   }
 };
 
-const getMe = async (userId: string, role: string) => {
+const getMe = async (userId: number, role: string) => {
   let result = null;
 
   if (role === "admin") {

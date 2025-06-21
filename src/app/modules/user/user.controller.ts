@@ -4,18 +4,18 @@ import sendResponse from "../../utils/sendResponse";
 import { UserServices } from "./user.service";
 
 const createTeacher = catchAsync(async (req, res) => {
-  const { password, faculty: facultyData } = req.body;
+  const { password, teacher: teacherData } = req.body;
 
   const result = await UserServices.createTeacherIntoDB(
     req.file,
     password,
-    facultyData
+    teacherData
   );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Faculty is created successfully",
+    message: "Teacher is created successfully",
     data: result,
   });
 });
