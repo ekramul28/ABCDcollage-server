@@ -111,30 +111,4 @@ UserSchema.methods.comparePassword = async function (
   }
 };
 
-// Add validation based on role
-UserSchema.pre("validate", function (next) {
-  if (this.role === UserRole.STUDENT) {
-    if (!this.studentId || !this.batch || !this.semester) {
-      next(new Error("Student requires studentId, batch, and semester"));
-      return;
-    }
-  }
-
-  if (this.role === UserRole.TEACHER) {
-    if (!this.teacherId || !this.department) {
-      next(new Error("Teacher requires teacherId and department"));
-      return;
-    }
-  }
-
-  if (this.role === UserRole.STAFF) {
-    if (!this.staffId || !this.department) {
-      next(new Error("Staff requires staffId and department"));
-      return;
-    }
-  }
-
-  next();
-});
-
 export const User = mongoose.model<IUser>("User", UserSchema);
