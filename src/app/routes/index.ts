@@ -5,6 +5,7 @@ import { AttendanceRoutes } from "../modules/attendance/attendance.routes";
 import { UserRoutes } from "../modules/user/user.route";
 import { NotificationRoutes } from "../modules/notification/notification.routes";
 import { TeacherRoutes } from "../modules/teacher/teacher.route";
+import { HomeRoutes } from "../modules/Home/home.route";
 
 const router = Router();
 
@@ -32,6 +33,10 @@ const moduleRoutes = [
   {
     path: "/notification",
     route: NotificationRoutes,
+  },
+  {
+    path: "/home",
+    route: HomeRoutes,
   },
 ];
 
