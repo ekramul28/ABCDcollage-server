@@ -1,123 +1,60 @@
-import { Request, Response } from "express";
-import { TeacherService } from "./teacher.service";
-import { CreateTeacherDto, UpdateTeacherDto } from "./teacher.types";
-import { UserRole } from "../auth/auth.types";
+import httpStatus from "http-status";
+import catchAsync from "../../utils/catchAsync";
+import sendResponse from "../../utils/sendResponse";
+import { TeacherServices } from "./teacher.service";
 
-export class TeacherController {
-  private teacherService: TeacherService;
+const getSingleTeacher = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await TeacherServices.getSingleTeacherFromDB(id);
 
-  constructor() {
-    this.teacherService = new TeacherService();
-  }
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Teacher is retrieved successfully",
+    data: result,
+  });
+});
 
-  public async createTeacher(req: Request, res: Response): Promise<void> {
-    try {
-      // Check if user has admin permission
-      const userRole = req.user?.role;
-      if (userRole !== UserRole.ADMIN) {
-        res.status(403).json({ error: "Forbidden: Admin access required" });
-        return;
-      }
+const getAllTeachers = catchAsync(async (req, res) => {
+  const result = await TeacherServices.getAllTeachersFromDB(req.query);
 
-      const teacherData: CreateTeacherDto = req.body;
-      const teacher = await this.teacherService.createTeacher(teacherData);
-      res.status(201).json(teacher);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: "Error creating teacher" });
-      }
-    }
-  }
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Teachers are retrieved successfully",
+    meta: result.meta,
+    data: result.result,
+  });
+});
 
-  public async getTeacherProfile(req: Request, res: Response): Promise<void> {
-    try {
-      const { teacherId } = req.params;
-      const teacher = await this.teacherService.getTeacherProfile(teacherId);
+const updateTeacher = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { teacher } = req.body;
+  const result = await TeacherServices.updateTeacherIntoDB(id, teacher);
 
-      if (!teacher) {
-        res.status(404).json({ error: "Teacher not found" });
-        return;
-      }
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Teacher is updated successfully",
+    data: result,
+  });
+});
 
-      res.status(200).json(teacher);
-    } catch (error) {
-      res.status(500).json({ error: "Error fetching teacher profile" });
-    }
-  }
+const deleteTeacher = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await TeacherServices.deleteTeacherFromDB(id);
 
-  public async updateTeacher(req: Request, res: Response): Promise<void> {
-    try {
-      // Check if user is admin or the teacher themselves
-      const userRole = req.user?.role;
-      const userId = req.user?.userId;
-      const { teacherId } = req.params;
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Teacher is deleted successfully",
+    data: result,
+  });
+});
 
-      const teacher = await this.teacherService.getTeacherProfile(teacherId);
-      if (!teacher) {
-        res.status(404).json({ error: "Teacher not found" });
-        return;
-      }
-
-      if (userRole !== UserRole.ADMIN && userId !== teacher.id) {
-        res.status(403).json({ error: "Forbidden: Insufficient permissions" });
-        return;
-      }
-
-      const updateData: UpdateTeacherDto = req.body;
-      const updatedTeacher = await this.teacherService.updateTeacher(
-        teacherId,
-        updateData
-      );
-
-      res.status(200).json(updatedTeacher);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: "Error updating teacher" });
-      }
-    }
-  }
-
-  public async listTeachers(req: Request, res: Response): Promise<void> {
-    try {
-      const filters = {
-        department: req.query.department as string,
-        specialization: req.query.specialization as string,
-        designation: req.query.designation as string,
-        search: req.query.search as string,
-        page: req.query.page ? Number(req.query.page) : undefined,
-        limit: req.query.limit ? Number(req.query.limit) : undefined,
-      };
-
-      const result = await this.teacherService.listTeachers(filters);
-      res.status(200).json(result);
-    } catch (error) {
-      res.status(500).json({ error: "Error listing teachers" });
-    }
-  }
-
-  public async deleteTeacher(req: Request, res: Response): Promise<void> {
-    try {
-      // Check if user has admin permission
-      const userRole = req.user?.role;
-      if (userRole !== UserRole.ADMIN) {
-        res.status(403).json({ error: "Forbidden: Admin access required" });
-        return;
-      }
-
-      const { teacherId } = req.params;
-      const success = await this.teacherService.deleteTeacher(teacherId);
-
-      if (success) {
-        res.status(200).json({ message: "Teacher deleted successfully" });
-      } else {
-        res.status(404).json({ error: "Teacher not found" });
-      }
-    } catch (error) {
-      res.status(500).json({ error: "Error deleting teacher" });
-    }
-  }
-}
+export const TeacherControllers = {
+  getAllTeachers,
+  getSingleTeacher,
+  deleteTeacher,
+  updateTeacher,
+};

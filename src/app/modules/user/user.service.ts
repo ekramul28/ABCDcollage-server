@@ -1,118 +1,163 @@
-import {
-  UpdateUserProfileDto,
-  UserListFilters,
-  UserProfile,
-  PaginatedUserResponse,
-} from "./user.types";
-import { UserRole } from "../auth/auth.types";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import httpStatus from "http-status";
+import mongoose from "mongoose";
+import QueryBuilder from "../../builder/QueryBuilder";
+import AppError from "../../errors/AppError";
+import { UserSearchableFields } from "./user.constant";
+import { TUser } from "./user.interface";
+import { User } from "./user.model";
+import config from "../../config";
+import { TTeacher } from "../teacher/teacher.interface";
+import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
+import { generateAdminId, generateTeacherId } from "./user.utils";
+import { TAdmin } from "../admin/admin.interface";
+import { Admin } from "../admin/admin.model";
 
-export class UserService {
-  constructor() {}
+const createTeacherIntoDB = async (
+  file: any,
+  password: string,
+  payload: TTeacher
+) => {
+  // create a user object
+  const userData: Partial<TUser> = {};
 
-  public async getUserProfile(userId: number): Promise<UserProfile | null> {
-    try {
-      // TODO: Implement actual database query
-      // This is a mock implementation
-      const mockUser: UserProfile = {
-        id: userId,
-        email: "student@example.com",
-        name: "John Doe",
-        role: UserRole.STUDENT,
-        studentId: "ST001",
-        batch: "2024",
-        semester: 1,
-        phoneNumber: "+1234567890",
-        address: "123 College Street",
-        dateOfBirth: new Date("2000-01-01"),
-        gender: "male",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+  //if password is not given , use deafult password
+  userData.password = password || (config.default_password as string);
 
-      return mockUser;
-    } catch (error) {
-      throw new Error("Error fetching user profile");
+  //set faculty role
+  userData.role = "teacher";
+  //set faculty email
+  userData.email = payload.email;
+
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+    //set  generated id
+    userData.id = await generateTeacherId();
+
+    if (file) {
+      const imageName = `${userData.id}${payload?.name?.firstName}`;
+      const path = file?.path;
+      //send image to cloudinary
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImg = secure_url as string;
     }
+
+    // create a user (transaction-1)
+    const newUser = await User.create([userData], { session }); // array
+
+    //create a faculty
+    if (!newUser.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Failed to create user");
+    }
+    // set id , _id as user
+    payload.id = newUser[0].id;
+    payload.user = newUser[0]._id; //reference _id
+
+    // create a faculty (transaction-2)
+
+    const newFaculty = await Teacher.create([payload], { session });
+
+    if (!newFaculty.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Failed to create faculty");
+    }
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return newFaculty;
+  } catch (err: any) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new Error(err);
+  }
+};
+
+const createAdminIntoDB = async (
+  file: any,
+  password: string,
+  payload: TAdmin
+) => {
+  // create a user object
+  const userData: Partial<TUser> = {};
+
+  //if password is not given , use deafult password
+  userData.password = password || (config.default_password as string);
+
+  //set student role
+  userData.role = "admin";
+  //set admin email
+  userData.email = payload.email;
+  const session = await mongoose.startSession();
+  console.log("dat", userData);
+  try {
+    session.startTransaction();
+    //set  generated id
+    userData.id = await generateAdminId();
+
+    if (file) {
+      const imageName = `${userData.id}${payload?.name?.firstName}`;
+      const path = file?.path;
+      //send image to cloudinary
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImg = secure_url as string;
+    }
+
+    // create a user (transaction-1)
+    const newUser = await User.create([userData], { session });
+
+    //create a admin
+    if (!newUser.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Failed to create admin");
+    }
+    // set id , _id as user
+    payload.id = newUser[0].id;
+    payload.user = newUser[0]._id; //reference _id
+
+    // create a admin (transaction-2)
+    const newAdmin = await Admin.create([payload], { session });
+
+    if (!newAdmin.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Failed to create admin");
+    }
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return newAdmin;
+  } catch (err: any) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new Error(err);
+  }
+};
+
+const getMe = async (userId: string, role: string) => {
+  let result = null;
+
+  if (role === "admin") {
+    result = await Admin.findOne({ id: userId }).populate("user");
   }
 
-  public async updateUserProfile(
-    userId: number,
-    updateData: UpdateUserProfileDto
-  ): Promise<UserProfile> {
-    try {
-      // TODO: Implement actual database update
-      // This is a mock implementation
-      const existingUser = await this.getUserProfile(userId);
-      if (!existingUser) {
-        throw new Error("User not found");
-      }
-
-      const updatedUser: UserProfile = {
-        ...existingUser,
-        ...updateData,
-        updatedAt: new Date(),
-      };
-
-      return updatedUser;
-    } catch (error) {
-      throw new Error("Error updating user profile");
-    }
+  if (role === "teacher") {
+    result = await Teacher.findOne({ id: userId }).populate("user");
   }
 
-  public async listUsers(
-    filters: UserListFilters
-  ): Promise<PaginatedUserResponse> {
-    try {
-      // TODO: Implement actual database query with filters and pagination
-      // This is a mock implementation
-      const mockUsers: UserProfile[] = [
-        {
-          id: 1,
-          email: "student1@example.com",
-          name: "John Doe",
-          role: UserRole.STUDENT,
-          studentId: "ST001",
-          batch: "2024",
-          semester: 1,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 2,
-          email: "teacher1@example.com",
-          name: "Jane Smith",
-          role: UserRole.TEACHER,
-          teacherId: "TC001",
-          department: "Computer Science",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
+  return result;
+};
 
-      const page = filters.page || 1;
-      const limit = filters.limit || 10;
-      const total = mockUsers.length;
-      const totalPages = Math.ceil(total / limit);
+const changeStatus = async (id: string, payload: { status: string }) => {
+  const result = await User.findByIdAndUpdate(id, payload, {
+    new: true,
+  });
+  return result;
+};
 
-      return {
-        users: mockUsers,
-        total,
-        page,
-        limit,
-        totalPages,
-      };
-    } catch (error) {
-      throw new Error("Error listing users");
-    }
-  }
+export const UserServices = {
+  createTeacherIntoDB,
 
-  public async deleteUser(userId: number): Promise<boolean> {
-    try {
-      // TODO: Implement actual database deletion
-      // This is a mock implementation
-      return true;
-    } catch (error) {
-      throw new Error("Error deleting user");
-    }
-  }
-}
+  createAdminIntoDB,
+  getMe,
+  changeStatus,
+};

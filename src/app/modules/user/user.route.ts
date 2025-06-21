@@ -1,35 +1,49 @@
-import { Router } from "express";
-import { UserController } from "./user.controller";
-import {
-  updateProfileValidation,
-  validateUserListQuery,
-} from "./user.validation";
-import { authenticateToken } from "../auth/auth.middleware";
+import express, { NextFunction, Request, Response } from "express";
+import auth from "../../middlewares/auth";
+import validateRequest from "../../middlewares/validateRequest";
+import { USER_ROLE } from "./user.constant";
+import { UserControllers } from "./user.controller";
+import { createAdminValidationSchema } from "../admin/admin.validation";
+import { createTeacherValidationSchema } from "../teacher/teacher.validation";
+import { UserValidation } from "./user.validation";
 
-const router = Router();
-const userController = new UserController();
+const router = express.Router();
 
-// Protected routes - require authentication
-router.use(authenticateToken);
-
-// Get user profile
-router.get("/profile", userController.getProfile.bind(userController));
-
-// Update user profile
-router.patch(
-  "/profile",
-  updateProfileValidation,
-  userController.updateProfile.bind(userController)
+router.post(
+  "/create-teacher",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
+  validateRequest(createTeacherValidationSchema),
+  UserControllers.createTeacher
 );
 
-// List users (admin and staff only)
+router.post(
+  "/create-admin",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
+  validateRequest(createAdminValidationSchema),
+  UserControllers.createAdmin
+);
+
+router.post(
+  "/change-status/:id",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  validateRequest(UserValidation.changeStatusValidationSchema),
+  UserControllers.changeStatus
+);
+
 router.get(
-  "/list",
-  validateUserListQuery,
-  userController.listUsers.bind(userController)
+  "/me",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.teacher),
+  UserControllers.getMe
 );
 
-// Delete user (admin only)
-router.delete("/:userId", userController.deleteUser.bind(userController));
-
-export default router;
+export const UserRoutes = router;

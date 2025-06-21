@@ -1,72 +1,21 @@
-import { Request, Response, NextFunction } from "express";
 import { z } from "zod";
+import { UserStatus } from "./user.constant";
 
-const updateProfileSchema = z.object({
-  name: z.string().min(2).optional(),
-  phoneNumber: z
-    .string()
-    .regex(/^\+?[0-9]{10,15}$/)
+const userValidationSchema = z.object({
+  password: z
+    .string({
+      invalid_type_error: "Password must be string",
+    })
+    .max(20, { message: "Password can not be more than 20 characters" })
     .optional(),
-  address: z.string().min(5).optional(),
-  dateOfBirth: z.string().datetime().optional(),
-  gender: z.enum(["male", "female", "other"]).optional(),
-  department: z.string().optional(),
-  batch: z.string().optional(),
-  semester: z.number().int().min(1).max(8).optional(),
-  profileImage: z.string().url().optional(),
 });
 
-export const updateProfileValidation = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    await updateProfileSchema.parseAsync(req.body);
-    next();
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({
-        error: error.errors.map((e) => ({
-          field: e.path.join("."),
-          message: e.message,
-        })),
-      });
-    } else {
-      res.status(400).json({ error: "Invalid input" });
-    }
-  }
-};
-
-export const validateUserListQuery = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  const querySchema = z.object({
-    role: z.string().optional(),
-    department: z.string().optional(),
-    batch: z.string().optional(),
-    semester: z.coerce.number().int().min(1).max(8).optional(),
-    search: z.string().optional(),
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(10),
-  });
-
-  try {
-    const query = await querySchema.parseAsync(req.query);
-    req.query = query;
-    next();
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({
-        error: error.errors.map((e) => ({
-          field: e.path.join("."),
-          message: e.message,
-        })),
-      });
-    } else {
-      res.status(400).json({ error: "Invalid query parameters" });
-    }
-  }
+const changeStatusValidationSchema = z.object({
+  body: z.object({
+    status: z.enum([...UserStatus] as [string, ...string[]]),
+  }),
+});
+export const UserValidation = {
+  userValidationSchema,
+  changeStatusValidationSchema,
 };

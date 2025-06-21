@@ -1,7 +1,7 @@
 import express from "express";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
-import { UserRole } from "../auth/auth.types";
+import { USER_ROLE } from "../user/user.constant";
 import { AdminControllers } from "./admin.controller";
 import { updateAdminValidationSchema } from "./admin.validation";
 
@@ -9,26 +9,26 @@ const router = express.Router();
 
 router.get(
   "/",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   AdminControllers.getAllAdmins
 );
 
 router.get(
   "/:id",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   AdminControllers.getSingleAdmin
 );
 
 router.patch(
   "/:id",
-  auth(UserRole.SUPER_ADMIN),
+  auth(USER_ROLE.superAdmin),
   validateRequest(updateAdminValidationSchema),
   AdminControllers.updateAdmin
 );
 
 router.delete(
   "/:adminId",
-  auth(UserRole.SUPER_ADMIN),
+  auth(USER_ROLE.superAdmin),
   AdminControllers.deleteAdmin
 );
 

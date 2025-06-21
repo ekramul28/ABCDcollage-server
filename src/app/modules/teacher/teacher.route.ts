@@ -1,49 +1,31 @@
-import { Router } from "express";
-import { TeacherController } from "./teacher.controller";
-import {
-  createTeacherValidation,
-  updateTeacherValidation,
-  validateTeacherListQuery,
-} from "./teacher.validation";
-import { authenticateToken } from "../../middlewares/auth.middleware";
+import express from 'express';
+import auth from '../../middlewares/auth';
+import validateRequest from '../../middlewares/validateRequest';
+import { USER_ROLE } from '../User/user.constant';
+import { FacultyControllers } from './faculty.controller';
+import { updateFacultyValidationSchema } from './faculty.validation';
 
-const router = Router();
-const teacherController = new TeacherController();
+const router = express.Router();
 
-// All routes require authentication
-router.use(authenticateToken);
-
-// Create new teacher (Admin only)
-router.post(
-  "/",
-  createTeacherValidation,
-  teacherController.createTeacher.bind(teacherController)
-);
-
-// Get teacher profile
 router.get(
-  "/:teacherId",
-  teacherController.getTeacherProfile.bind(teacherController)
+  '/:id',
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.faculty),
+  FacultyControllers.getSingleFaculty,
 );
 
-// Update teacher (Admin or self only)
 router.patch(
-  "/:teacherId",
-  updateTeacherValidation,
-  teacherController.updateTeacher.bind(teacherController)
+  '/:id',
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  validateRequest(updateFacultyValidationSchema),
+  FacultyControllers.updateFaculty,
 );
 
-// List teachers with filters
-router.get(
-  "/",
-  validateTeacherListQuery,
-  teacherController.listTeachers.bind(teacherController)
-);
-
-// Delete teacher (Admin only)
 router.delete(
-  "/:teacherId",
-  teacherController.deleteTeacher.bind(teacherController)
+  '/:id',
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  FacultyControllers.deleteFaculty,
 );
 
-export default router;
+router.get('/', FacultyControllers.getAllFaculties);
+
+export const FacultyRoutes = router;

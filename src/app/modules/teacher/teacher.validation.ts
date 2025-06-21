@@ -1,100 +1,64 @@
-import { Request, Response, NextFunction } from "express";
 import { z } from "zod";
+import { BloodGroup, Gender } from "./teacher.constant";
 
-const createTeacherSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  name: z.string().min(2),
-  teacherId: z.string().min(2),
-  department: z.string().min(2),
-  specialization: z.string().optional(),
-  qualification: z.string().min(2),
-  subjects: z.array(z.string()).min(1),
-  experience: z.number().min(0),
-  designation: z.string().min(2),
+const createUserNameValidationSchema = z.object({
+  firstName: z
+    .string()
+    .min(1)
+    .max(20)
+    .refine((value) => /^[A-Z]/.test(value), {
+      message: "First Name must start with a capital letter",
+    }),
+  middleName: z.string(),
+  lastName: z.string(),
 });
 
-const updateTeacherSchema = z.object({
-  department: z.string().min(2).optional(),
-  specialization: z.string().optional(),
-  qualification: z.string().min(2).optional(),
-  subjects: z.array(z.string()).min(1).optional(),
-  designation: z.string().min(2).optional(),
-  experience: z.number().min(0).optional(),
+export const createTeacherValidationSchema = z.object({
+  body: z.object({
+    password: z.string().max(20),
+    teacher: z.object({
+      designation: z.string(),
+      name: createUserNameValidationSchema,
+      gender: z.enum([...Gender] as [string, ...string[]]),
+      dateOfBirth: z.string().optional(),
+      email: z.string().email(),
+      contactNo: z.string(),
+      emergencyContactNo: z.string(),
+      bloodGroup: z.enum([...BloodGroup] as [string, ...string[]]),
+      presentAddress: z.string(),
+      permanentAddress: z.string(),
+      academicDepartment: z.string(),
+      profileImg: z.string().optional(),
+    }),
+  }),
 });
 
-export const createTeacherValidation = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    await createTeacherSchema.parseAsync(req.body);
-    next();
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({
-        error: error.errors.map((e) => ({
-          field: e.path.join("."),
-          message: e.message,
-        })),
-      });
-    } else {
-      res.status(400).json({ error: "Invalid input" });
-    }
-  }
-};
+const updateUserNameValidationSchema = z.object({
+  firstName: z.string().min(1).max(20).optional(),
+  middleName: z.string().optional(),
+  lastName: z.string().optional(),
+});
 
-export const updateTeacherValidation = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    await updateTeacherSchema.parseAsync(req.body);
-    next();
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({
-        error: error.errors.map((e) => ({
-          field: e.path.join("."),
-          message: e.message,
-        })),
-      });
-    } else {
-      res.status(400).json({ error: "Invalid input" });
-    }
-  }
-};
+export const updateTeacherValidationSchema = z.object({
+  body: z.object({
+    teacher: z.object({
+      designation: z.string().optional(),
+      name: updateUserNameValidationSchema,
+      gender: z.enum([...Gender] as [string, ...string[]]).optional(),
+      dateOfBirth: z.string().optional(),
+      email: z.string().email().optional(),
+      contactNo: z.string().optional(),
+      emergencyContactNo: z.string().optional(),
+      bloogGroup: z.enum([...BloodGroup] as [string, ...string[]]).optional(),
+      presentAddress: z.string().optional(),
+      permanentAddress: z.string().optional(),
+      // profileImg: z.string().optional(),
+      academicDepartment: z.string().optional(),
+    }),
+  }),
+});
 
-export const validateTeacherListQuery = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  const querySchema = z.object({
-    department: z.string().optional(),
-    specialization: z.string().optional(),
-    designation: z.string().optional(),
-    search: z.string().optional(),
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(10),
-  });
-
-  try {
-    const query = await querySchema.parseAsync(req.query);
-    req.query = query as any; // Using any instead of ParsedQs since it's not imported
-    next();
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({
-        error: error.errors.map((e) => ({
-          field: e.path.join("."),
-          message: e.message,
-        })),
-      });
-    } else {
-      res.status(400).json({ error: "Invalid query parameters" });
-    }
-  }
+export const teacherValidations = {
+  createTeacherValidationSchema,
+  updateTeacherValidationSchema,
 };
