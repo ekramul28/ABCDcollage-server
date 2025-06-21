@@ -1,31 +1,31 @@
-import express from 'express';
-import auth from '../../middlewares/auth';
-import validateRequest from '../../middlewares/validateRequest';
-import { USER_ROLE } from '../User/user.constant';
-import { FacultyControllers } from './faculty.controller';
-import { updateFacultyValidationSchema } from './faculty.validation';
+import express from "express";
+import auth from "../../middlewares/auth";
+import validateRequest from "../../middlewares/validateRequest";
+import { USER_ROLE } from "../user/user.constant";
+import { TeacherControllers } from "./teacher.controller";
+import { updateTeacherValidationSchema } from "./teacher.validation";
 
 const router = express.Router();
 
 router.get(
-  '/:id',
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.faculty),
-  FacultyControllers.getSingleFaculty,
+  "/:id",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.teacher),
+  TeacherControllers.getSingleTeacher
 );
 
 router.patch(
-  '/:id',
+  "/:id",
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
-  validateRequest(updateFacultyValidationSchema),
-  FacultyControllers.updateFaculty,
+  validateRequest(updateTeacherValidationSchema),
+  TeacherControllers.updateTeacher
 );
 
 router.delete(
-  '/:id',
+  "/:id",
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
-  FacultyControllers.deleteFaculty,
+  TeacherControllers.deleteTeacher
 );
 
-router.get('/', FacultyControllers.getAllFaculties);
+router.get("/", TeacherControllers.getAllTeachers);
 
-export const FacultyRoutes = router;
+export const TeacherRoutes = router;

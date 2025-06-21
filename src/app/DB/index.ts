@@ -1,39 +1,44 @@
-import { Sequelize } from "sequelize";
+import mongoose from "mongoose";
 import config from "../config";
 
-const sequelize = new Sequelize({
-  dialect: "postgres",
-  host: config.database.host,
-  port: config.database.port,
-  username: config.database.user,
-  password: config.database.password,
-  database: config.database.name,
-  logging: false,
-});
+const connectDB = async (): Promise<void> => {
+  try {
+    const mongoURI = config.database_url;
 
-export { sequelize };
+    await mongoose.connect(mongoURI);
+    console.log("MongoDB connected successfully");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    process.exit(1);
+  }
+};
+
+export { connectDB };
 
 // Seed super admin
-import { User } from "../modules/auth/auth.model";
-import { UserRole } from "../modules/auth/auth.types";
+import { User } from "../modules/user/user.model";
+import { USER_ROLE } from "../modules/user/user.constant";
 
 const superUser = {
-  name: "Super Admin",
+  id: "SUPER_ADMIN_001",
   email: "mdekramulhassan168@gmail.com",
-  password: config.super_admin_password,
-  role: UserRole.SUPER_ADMIN,
-  isActive: true,
+  password: config.super_admin_password || "superadmin123",
+  role: USER_ROLE.superAdmin,
+  status: "in-progress",
+  isDeleted: false,
 };
 
 const seedSuperAdmin = async () => {
   try {
     const isSuperAdminExists = await User.findOne({
-      where: { role: UserRole.SUPER_ADMIN },
+      role: USER_ROLE.superAdmin,
     });
 
     if (!isSuperAdminExists) {
       await User.create(superUser);
       console.log("Super admin created successfully");
+    } else {
+      console.log("Super admin already exists");
     }
   } catch (error) {
     console.error("Error seeding super admin:", error);

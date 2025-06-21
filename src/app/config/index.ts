@@ -8,11 +8,13 @@ export default {
   port: process.env.PORT,
   database: {
     host: process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.DB_PORT || "5432"),
-    user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "postgres",
+    port: parseInt(process.env.DB_PORT || "27017"),
+    user: process.env.DB_USER || "",
+    password: process.env.DB_PASSWORD || "",
     name: process.env.DB_NAME || "abcd_college",
   },
+  database_url:
+    process.env.DATABASE_URL || `mongodb://localhost:27017/abcd_college`,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
   default_password: process.env.DEFAULT_PASS,
   jwt_access_secret: process.env.JWT_ACCESS_SECRET,
