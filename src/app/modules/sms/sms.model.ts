@@ -1,8 +1,5 @@
 import { Schema, model } from "mongoose";
 import {
-  SmsType,
-  SmsStatus,
-  SmsPriority,
   SmsModel,
   SmsTemplateModel,
   SmsGroupModel,
@@ -14,6 +11,7 @@ import {
   TSmsSchedule,
   TSmsLog,
 } from "./sms.interface";
+import { SmsPriority, SmsType } from "./sms.constant";
 
 // SMS Schema
 const smsSchema = new Schema<TSms, SmsModel>(
@@ -396,17 +394,17 @@ smsLogSchema.statics.isLogExists = async function (id: string) {
 };
 
 // Filter deleted documents
-const filterDeleted = function (next: any) {
+const filterDeleted = function (this: any, next: any) {
   this.find({ isDeleted: false });
   next();
 };
 
-const filterDeletedOne = function (next: any) {
+const filterDeletedOne = function (this: any, next: any) {
   this.findOne({ isDeleted: false });
   next();
 };
 
-const filterDeletedAggregate = function (next: any) {
+const filterDeletedAggregate = function (this: any, next: any) {
   this.pipeline().unshift({ $match: { isDeleted: false } });
   next();
 };

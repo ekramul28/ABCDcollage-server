@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from "http-status";
 import mongoose from "mongoose";
-import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
-import { UserSearchableFields } from "./user.constant";
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
 import config from "../../config";
@@ -13,6 +11,7 @@ import { TAdmin } from "../admin/admin.interface";
 import { Admin } from "../admin/admin.model";
 import { Teacher } from "../teacher/teacher.model";
 import { TTeacher } from "../teacher/teacher.interface";
+import { UserRole } from "../auth/auth.types";
 
 const createTeacherIntoDB = async (
   file: any,
@@ -26,7 +25,7 @@ const createTeacherIntoDB = async (
   userData.password = password || (config.default_password as string);
 
   //set teacher role
-  userData.role = "teacher";
+  userData.role = UserRole.TEACHER;
   //set teacher email
   userData.email = payload.email;
 
@@ -87,7 +86,7 @@ const createAdminIntoDB = async (
   userData.password = password || (config.default_password as string);
 
   //set student role
-  userData.role = "admin";
+  userData.role = UserRole.ADMIN;
   //set admin email
   userData.email = payload.email;
   const session = await mongoose.startSession();
@@ -137,11 +136,11 @@ const createAdminIntoDB = async (
 const getMe = async (userId: number, role: string) => {
   let result = null;
 
-  if (role === "admin") {
+  if (role === UserRole.ADMIN) {
     result = await Admin.findOne({ id: userId }).populate("user");
   }
 
-  if (role === "teacher") {
+  if (role === UserRole.TEACHER) {
     result = await Teacher.findOne({ id: userId }).populate("user");
   }
 

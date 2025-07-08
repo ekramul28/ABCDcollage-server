@@ -24,8 +24,8 @@ router.post(
   auth(
     UserRole.SUPER_ADMIN,
     UserRole.ADMIN,
-    UserRole.TEACHER,
-    UserRole.STUDENT
+    UserRole.TEACHER
+    // UserRole.STUDENT
   ),
   validateRequest(createSmsValidationSchema),
   SmsControllers.createSms
