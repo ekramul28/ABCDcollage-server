@@ -11,7 +11,7 @@ import {
   TSmsSchedule,
   TSmsLog,
 } from "./sms.interface";
-import { SmsPriority, SmsType } from "./sms.constant";
+import { SmsPriority, SmsStatus, SmsType } from "./sms.constant";
 
 // SMS Schema
 const smsSchema = new Schema<TSms, SmsModel>(
