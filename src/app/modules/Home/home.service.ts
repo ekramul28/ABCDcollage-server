@@ -79,6 +79,16 @@ const deleteBannerFromDB = async (id: string) => {
   }
 };
 
+// Banner Video Service (explicit wrapper)
+const updateBannerVideo = async (bannerId: string, videoUrl: string) => {
+  return updateBannerIntoDB(bannerId, { videoUrl });
+};
+
+// Gallery Multiple Images Service (explicit wrapper)
+const createMultipleGalleryItems = async (items: TGalleryItem[]) => {
+  return Gallery.insertMany(items);
+};
+
 // Gallery Services
 const getAllGalleryFromDB = async (query: Record<string, unknown>) => {
   const galleryQuery = new QueryBuilder(Gallery.find(), query)
@@ -263,6 +273,7 @@ export const HomeServices = {
   createBannerIntoDB,
   updateBannerIntoDB,
   deleteBannerFromDB,
+  updateBannerVideo, // explicit video service
 
   // Gallery services
   getAllGalleryFromDB,
@@ -270,6 +281,7 @@ export const HomeServices = {
   createGalleryIntoDB,
   updateGalleryIntoDB,
   deleteGalleryFromDB,
+  createMultipleGalleryItems, // explicit multiple images service
 
   // Contact services
   getContactFromDB,

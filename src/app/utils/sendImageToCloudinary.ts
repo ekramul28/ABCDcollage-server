@@ -35,6 +35,48 @@ export const sendImageToCloudinary = (
   });
 };
 
+export const sendVideoToCloudinary = (
+  videoName: string,
+  path: string
+): Promise<Record<string, unknown>> => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload(
+      path,
+      { resource_type: "video", public_id: videoName.trim() },
+      function (error, result) {
+        if (error) {
+          reject(error);
+        }
+        resolve(result as UploadApiResponse);
+        // delete a file asynchronously
+        fs.unlink(path, (err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("File is deleted.");
+          }
+        });
+      }
+    );
+  });
+};
+
+export const sendMultipleImagesToCloudinary = async (
+  imageFiles: Express.Multer.File[]
+): Promise<string[]> => {
+  const urls: string[] = [];
+  for (const file of imageFiles) {
+    const result = (await sendImageToCloudinary(
+      file.filename,
+      file.path
+    )) as any;
+    if (result.secure_url) {
+      urls.push(result.secure_url);
+    }
+  }
+  return urls;
+};
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, process.cwd() + "/uploads/");

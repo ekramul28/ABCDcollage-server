@@ -2,6 +2,10 @@ import httpStatus from "http-status";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { HomeServices } from "./home.service";
+import {
+  sendVideoToCloudinary,
+  sendMultipleImagesToCloudinary,
+} from "../../utils/sendImageToCloudinary";
 
 // Banner Controllers
 const createBanner = catchAsync(async (req, res) => {
@@ -258,6 +262,74 @@ const deleteNavbar = catchAsync(async (req, res) => {
   });
 });
 
+// Banner Video Upload Controller
+const uploadBannerVideo = catchAsync(async (req, res) => {
+  let videoUrl = req.body.videoUrl;
+  if (req.file) {
+    const result = await sendVideoToCloudinary(
+      req.file.filename,
+      req.file.path
+    );
+    videoUrl = result.secure_url;
+  }
+  // Save or update the banner with the videoUrl (assume bannerId in body)
+  const { bannerId } = req.body;
+  if (!bannerId || !videoUrl) {
+    sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: "bannerId and videoUrl (or file) are required",
+      data: null,
+    });
+    return;
+  }
+  const updatedBanner = await HomeServices.updateBannerIntoDB(bannerId, {
+    videoUrl,
+  });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Banner video uploaded/linked successfully",
+    data: updatedBanner,
+  });
+});
+
+// Gallery Multiple Image Upload Controller
+const uploadGalleryImages = catchAsync(async (req, res) => {
+  if (!req.files || !(req.files instanceof Array) || req.files.length === 0) {
+    sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: "No images uploaded",
+      data: null,
+    });
+    return;
+  }
+  const { title, description, category, tags, status } = req.body;
+  const urls = await sendMultipleImagesToCloudinary(req.files);
+  // Create a gallery item for each image
+  const createdItems = await Promise.all(
+    urls.map((url) =>
+      HomeServices.createGalleryIntoDB({
+        id: `${Date.now()}-${Math.random()}`,
+        title: title || "Gallery Image",
+        description,
+        imageUrl: url,
+        category: category || "default",
+        tags: tags ? (Array.isArray(tags) ? tags : [tags]) : [],
+        status: status || "active",
+        isDeleted: false,
+      })
+    )
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "Gallery images uploaded successfully",
+    data: createdItems,
+  });
+});
+
 export const HomeControllers = {
   // Banner controllers
   createBanner,
@@ -265,6 +337,7 @@ export const HomeControllers = {
   getSingleBanner,
   deleteBanner,
   updateBanner,
+  uploadBannerVideo,
 
   // Gallery controllers
   createGallery,
@@ -272,6 +345,7 @@ export const HomeControllers = {
   getSingleGallery,
   deleteGallery,
   updateGallery,
+  uploadGalleryImages,
 
   // Contact controllers
   getContact,

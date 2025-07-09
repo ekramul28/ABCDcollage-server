@@ -15,6 +15,7 @@ import {
   createNavbarValidationSchema,
   updateNavbarValidationSchema,
 } from "./home.validation";
+import { upload } from "../../utils/sendImageToCloudinary";
 
 const router = express.Router();
 
@@ -43,6 +44,14 @@ router.delete(
   HomeControllers.deleteBanner
 );
 
+// Banner Video Upload Route
+router.post(
+  "/banner/video",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  upload.single("video"),
+  HomeControllers.uploadBannerVideo
+);
+
 // Gallery Routes
 router.post(
   "/gallery",
@@ -66,6 +75,14 @@ router.delete(
   "/gallery/:id",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   HomeControllers.deleteGallery
+);
+
+// Gallery Multiple Image Upload Route
+router.post(
+  "/gallery/images",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  upload.array("images", 10), // up to 10 images at once
+  HomeControllers.uploadGalleryImages
 );
 
 // Contact Routes
