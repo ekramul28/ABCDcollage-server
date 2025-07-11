@@ -14,6 +14,8 @@ import {
   updateAboutValidationSchema,
   createNavbarValidationSchema,
   updateNavbarValidationSchema,
+  createCalendarValidationSchema,
+  updateCalendarValidationSchema,
 } from "./home.validation";
 import { upload } from "../../utils/sendImageToCloudinary";
 
@@ -142,6 +144,31 @@ router.delete(
   "/navbar/:id",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   HomeControllers.deleteNavbar
+);
+
+// Calendar Routes
+router.post(
+  "/calendar",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  validateRequest(createCalendarValidationSchema),
+  HomeControllers.createCalendarEvent
+);
+
+router.get("/calendar", HomeControllers.getAllCalendarEvents);
+
+router.get("/calendar/:id", HomeControllers.getSingleCalendarEvent);
+
+router.patch(
+  "/calendar/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  validateRequest(updateCalendarValidationSchema),
+  HomeControllers.updateCalendarEvent
+);
+
+router.delete(
+  "/calendar/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  HomeControllers.deleteCalendarEvent
 );
 
 export const HomeRoutes = router;

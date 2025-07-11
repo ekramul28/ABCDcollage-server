@@ -15,7 +15,14 @@ import {
   TAboutInfo,
   TNavbarItem,
 } from "./home.interface";
-import { Banner, Gallery, Contact, About, Navbar } from "./home.model";
+import {
+  Banner,
+  Gallery,
+  Contact,
+  About,
+  Navbar,
+  Calendar,
+} from "./home.model";
 
 // Banner Services
 const getAllBannersFromDB = async (query: Record<string, unknown>) => {
@@ -266,6 +273,49 @@ const deleteNavbarFromDB = async (id: string) => {
   }
 };
 
+// Calendar Services
+const getAllCalendarEventsFromDB = async (query: Record<string, unknown>) => {
+  const calendarQuery = new QueryBuilder(Calendar.find(), query)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+  const result = await calendarQuery.modelQuery;
+  const meta = await calendarQuery.countTotal();
+  return {
+    result,
+    meta,
+  };
+};
+
+const getSingleCalendarEventFromDB = async (id: string) => {
+  return await Calendar.findOne({ id });
+};
+
+const createCalendarEventIntoDB = async (payload: any) => {
+  const created = await Calendar.create({
+    ...payload,
+    id: `${Date.now()}-${Math.random()}`,
+  });
+  return created;
+};
+
+const updateCalendarEventIntoDB = async (id: string, payload: any) => {
+  const updated = await Calendar.findOneAndUpdate({ id }, payload, {
+    new: true,
+  });
+  return updated;
+};
+
+const deleteCalendarEventFromDB = async (id: string) => {
+  const deleted = await Calendar.findOneAndUpdate(
+    { id },
+    { isDeleted: true },
+    { new: true }
+  );
+  return deleted;
+};
+
 export const HomeServices = {
   // Banner services
   getAllBannersFromDB,
@@ -299,4 +349,11 @@ export const HomeServices = {
   createNavbarIntoDB,
   updateNavbarIntoDB,
   deleteNavbarFromDB,
+
+  // Calendar services
+  getAllCalendarEventsFromDB,
+  getSingleCalendarEventFromDB,
+  createCalendarEventIntoDB,
+  updateCalendarEventIntoDB,
+  deleteCalendarEventFromDB,
 };

@@ -330,6 +330,64 @@ const uploadGalleryImages = catchAsync(async (req, res) => {
   });
 });
 
+// Calendar Controllers
+const createCalendarEvent = catchAsync(async (req, res) => {
+  const result = await HomeServices.createCalendarEventIntoDB(
+    req.body.calendar
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "Calendar event is created successfully",
+    data: result,
+  });
+});
+
+const getAllCalendarEvents = catchAsync(async (req, res) => {
+  const result = await HomeServices.getAllCalendarEventsFromDB(req.query);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Calendar events are retrieved successfully",
+    meta: result.meta,
+    data: result.result,
+  });
+});
+
+const getSingleCalendarEvent = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await HomeServices.getSingleCalendarEventFromDB(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Calendar event is retrieved successfully",
+    data: result,
+  });
+});
+
+const updateCalendarEvent = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { calendar } = req.body;
+  const result = await HomeServices.updateCalendarEventIntoDB(id, calendar);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Calendar event is updated successfully",
+    data: result,
+  });
+});
+
+const deleteCalendarEvent = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await HomeServices.deleteCalendarEventFromDB(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Calendar event is deleted successfully",
+    data: result,
+  });
+});
+
 export const HomeControllers = {
   // Banner controllers
   createBanner,
@@ -363,4 +421,11 @@ export const HomeControllers = {
   getSingleNavbar,
   deleteNavbar,
   updateNavbar,
+
+  // Calendar controllers
+  createCalendarEvent,
+  getAllCalendarEvents,
+  getSingleCalendarEvent,
+  updateCalendarEvent,
+  deleteCalendarEvent,
 };

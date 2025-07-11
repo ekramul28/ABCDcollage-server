@@ -148,6 +148,33 @@ export const updateNavbarValidationSchema = z.object({
   }),
 });
 
+// Calendar Validation Schemas
+export const createCalendarValidationSchema = z.object({
+  body: z.object({
+    calendar: z.object({
+      title: z.string().min(1).max(100),
+      description: z.string().max(500).optional(),
+      startDate: z.string().min(1),
+      endDate: z.string().min(1),
+      location: z.string().max(200).optional(),
+      allDay: z.boolean().optional(),
+    }),
+  }),
+});
+
+export const updateCalendarValidationSchema = z.object({
+  body: z.object({
+    calendar: z.object({
+      title: z.string().min(1).max(100).optional(),
+      description: z.string().max(500).optional(),
+      startDate: z.string().min(1).optional(),
+      endDate: z.string().min(1).optional(),
+      location: z.string().max(200).optional(),
+      allDay: z.boolean().optional(),
+    }),
+  }),
+});
+
 export const HomeValidations = {
   createBannerValidationSchema,
   updateBannerValidationSchema,
@@ -159,4 +186,6 @@ export const HomeValidations = {
   updateAboutValidationSchema,
   createNavbarValidationSchema,
   updateNavbarValidationSchema,
+  createCalendarValidationSchema,
+  updateCalendarValidationSchema,
 };

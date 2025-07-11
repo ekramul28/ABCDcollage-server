@@ -64,6 +64,17 @@ export type TNavbarItem = {
   isDeleted: boolean;
 };
 
+export type TCalendarEvent = {
+  id: string;
+  title: string;
+  description?: string;
+  startDate: string; // ISO string
+  endDate: string; // ISO string
+  location?: string;
+  allDay?: boolean;
+  isDeleted: boolean;
+};
+
 export interface BannerModel extends Model<TBanner> {
   // eslint-disable-next-line no-unused-vars
   isBannerExists(id: string): Promise<TBanner | null>;
@@ -87,4 +98,8 @@ export interface AboutModel extends Model<TAboutInfo> {
 export interface NavbarModel extends Model<TNavbarItem> {
   // eslint-disable-next-line no-unused-vars
   isNavbarItemExists(id: string): Promise<TNavbarItem | null>;
+}
+
+export interface CalendarModel extends Model<TCalendarEvent> {
+  isCalendarEventExists(id: string): Promise<TCalendarEvent | null>;
 }

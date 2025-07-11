@@ -12,6 +12,8 @@ import {
   TContactInfo,
   TAboutInfo,
   TNavbarItem,
+  TCalendarEvent,
+  CalendarModel,
 } from "./home.interface";
 
 // Banner Schema
@@ -296,6 +298,52 @@ const navbarSchema = new Schema<TNavbarItem, NavbarModel>(
   }
 );
 
+// Calendar Schema
+const calendarSchema = new Schema<TCalendarEvent, CalendarModel>(
+  {
+    id: {
+      type: String,
+      required: [true, "ID is required"],
+      unique: true,
+    },
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+      trim: true,
+      maxlength: [100, "Title can not be more than 100 characters"],
+    },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: [500, "Description can not be more than 500 characters"],
+    },
+    startDate: {
+      type: String,
+      required: [true, "Start date is required"],
+    },
+    endDate: {
+      type: String,
+      required: [true, "End date is required"],
+    },
+    location: {
+      type: String,
+      trim: true,
+    },
+    allDay: {
+      type: Boolean,
+      default: false,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+  }
+);
+
 // Filter out deleted documents for all schemas
 const filterDeleted = function (next: any) {
   this.find({ isDeleted: { $ne: true } });
@@ -313,13 +361,18 @@ const filterDeletedAggregate = function (next: any) {
 };
 
 // Apply middleware to all schemas
-[bannerSchema, gallerySchema, contactSchema, aboutSchema, navbarSchema].forEach(
-  (schema) => {
-    schema.pre("find", filterDeleted);
-    schema.pre("findOne", filterDeletedOne);
-    schema.pre("aggregate", filterDeletedAggregate);
-  }
-);
+[
+  bannerSchema,
+  gallerySchema,
+  contactSchema,
+  aboutSchema,
+  navbarSchema,
+  calendarSchema,
+].forEach((schema) => {
+  schema.pre("find", filterDeleted);
+  schema.pre("findOne", filterDeletedOne);
+  schema.pre("aggregate", filterDeletedAggregate);
+});
 
 // Static methods for all models
 bannerSchema.statics.isBannerExists = async function (id: string) {
@@ -342,6 +395,10 @@ navbarSchema.statics.isNavbarItemExists = async function (id: string) {
   return await Navbar.findOne({ id });
 };
 
+calendarSchema.statics.isCalendarEventExists = async function (id: string) {
+  return await Calendar.findOne({ id });
+};
+
 // Export models
 export const Banner = model<TBanner, BannerModel>("Banner", bannerSchema);
 export const Gallery = model<TGalleryItem, GalleryModel>(
@@ -354,3 +411,7 @@ export const Contact = model<TContactInfo, ContactModel>(
 );
 export const About = model<TAboutInfo, AboutModel>("About", aboutSchema);
 export const Navbar = model<TNavbarItem, NavbarModel>("Navbar", navbarSchema);
+export const Calendar = model<TCalendarEvent, CalendarModel>(
+  "Calendar",
+  calendarSchema
+);
