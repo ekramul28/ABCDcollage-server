@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { Model } from "mongoose";
 import { UserRole } from "../auth/auth.types";
+// import { UserRole } from "../auth/auth.types";
 
 export interface TUser {
   id: string;
@@ -15,7 +16,7 @@ export interface TUser {
 
 export interface UserModel extends Model<TUser> {
   //instance methods for checking if the user exist
-  isUserExistsByCustomId(id: string): Promise<TUser>;
+  isUserExistsByCustomId(email: string): Promise<TUser>;
   //instance methods for checking if passwords are matched
   isPasswordMatched(
     plainTextPassword: string,
