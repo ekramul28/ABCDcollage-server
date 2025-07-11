@@ -134,15 +134,19 @@ const createAdminIntoDB = async (
   }
 };
 
-const getMe = async (userId: number | string, role: string) => {
+const getMe = async (email: string, role: string) => {
+  console.log("ok ok", email);
   let result = null;
 
+  if (role === UserRole.SUPER_ADMIN) {
+    result = await User.findOne({ email });
+  }
   if (role === UserRole.ADMIN) {
-    result = await Admin.findOne({ id: userId }).populate("user");
+    result = await Admin.findOne({ email }).populate("user");
   }
 
   if (role === UserRole.TEACHER) {
-    result = await Teacher.findOne({ id: userId }).populate("user");
+    result = await Teacher.findOne({ email }).populate("user");
   }
 
   return result;

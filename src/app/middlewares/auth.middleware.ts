@@ -23,7 +23,7 @@ export const authenticateToken = async (
 
     // Add user info to request object
     req.user = {
-      userId: decoded.userId,
+      email: decoded.email || "",
       role: decoded.role,
       iat: decoded.iat,
       exp: decoded.exp,
@@ -56,6 +56,19 @@ export const isTeacher = (
 ): void => {
   if (req.user?.role !== UserRole.TEACHER) {
     res.status(403).json({ error: "Forbidden: Teacher access required" });
+    return;
+  }
+  next();
+};
+
+// Middleware to check if user is super admin
+export const isSuperAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (req.user?.role !== UserRole.SUPER_ADMIN) {
+    res.status(403).json({ error: "Forbidden: Super Admin access required" });
     return;
   }
   next();

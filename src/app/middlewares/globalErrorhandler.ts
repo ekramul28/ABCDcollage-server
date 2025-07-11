@@ -57,7 +57,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     stack: config.NODE_ENV === "development" ? err?.stack : null,
   });
 
-  next(); // Ensure proper middleware flow
+  // next(); // Ensure proper middleware flow
 };
 
 export default globalErrorHandler;

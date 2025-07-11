@@ -30,7 +30,7 @@ const moduleRoutes = [
     route: AttendanceRoutes,
   },
   {
-    path: "/user",
+    path: "/users",
     route: UserRoutes,
   },
   {
