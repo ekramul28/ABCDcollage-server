@@ -1,7 +1,7 @@
 import express from "express";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
-import { UserRole } from "../auth/auth.types";
+// import { UserRole } from "../auth/auth.types";
 import { HomeControllers } from "./home.controller";
 import {
   createBannerValidationSchema,
@@ -18,6 +18,7 @@ import {
   updateCalendarValidationSchema,
 } from "./home.validation";
 import { upload } from "../../utils/sendImageToCloudinary";
+import { UserRole } from "../auth/auth.types";
 
 const router = express.Router();
 

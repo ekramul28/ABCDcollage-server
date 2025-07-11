@@ -8,7 +8,6 @@ import { TUserRole } from "../modules/user/user.interface";
 import catchAsync from "../utils/catchAsync";
 import { User } from "../modules/user/user.model";
 import { UserRole } from "../modules/auth/auth.types";
-
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;

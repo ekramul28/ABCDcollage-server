@@ -1,5 +1,5 @@
 import { Router } from "express";
-import AuthRouter from "../modules/auth/auth.route";
+
 import { AdminRoutes } from "../modules/admin/admin.route";
 import { AttendanceRoutes } from "../modules/attendance/attendance.routes";
 import { UserRoutes } from "../modules/user/user.route";
@@ -8,13 +8,14 @@ import { TeacherRoutes } from "../modules/teacher/teacher.route";
 import { HomeRoutes } from "../modules/Home/home.route";
 import { ResultRoutes } from "../modules/result/result.routes";
 import { SmsRoutes } from "../modules/sms/sms.routes";
+import { AuthRoutes } from "../modules/auth/auth.route";
 
 const router = Router();
 
 const moduleRoutes = [
   {
     path: "/auth",
-    route: AuthRouter,
+    route: AuthRoutes,
   },
   {
     path: "/admin",

@@ -1,7 +1,5 @@
 import { Schema, model } from "mongoose";
 import {
-  ResultType,
-  ResultStatus,
   ResultModel,
   GradeModel,
   ExamModel,
@@ -9,6 +7,7 @@ import {
   TGradeRecord,
   TExam,
 } from "./result.interface";
+import { ResultStatus, ResultType } from "./result.constant";
 
 // Result Schema
 const resultSchema = new Schema<TResult, ResultModel>(
@@ -312,17 +311,17 @@ examSchema.statics.isExamExists = async function (id: string) {
 };
 
 // Filter deleted documents
-const filterDeleted = function (next: any) {
+const filterDeleted = function (this: any, next: any) {
   this.find({ isDeleted: false });
   next();
 };
 
-const filterDeletedOne = function (next: any) {
+const filterDeletedOne = function (this: any, next: any) {
   this.findOne({ isDeleted: false });
   next();
 };
 
-const filterDeletedAggregate = function (next: any) {
+const filterDeletedAggregate = function (this: any, next: any) {
   this.pipeline().unshift({ $match: { isDeleted: false } });
   next();
 };

@@ -1,7 +1,6 @@
 import { Schema, model } from "mongoose";
+import { BannerType, ContentStatus } from "./home.constant";
 import {
-  BannerType,
-  ContentStatus,
   BannerModel,
   GalleryModel,
   ContactModel,
@@ -345,34 +344,45 @@ const calendarSchema = new Schema<TCalendarEvent, CalendarModel>(
 );
 
 // Filter out deleted documents for all schemas
-const filterDeleted = function (next: any) {
+const filterDeleted = function (this: any, next: any) {
   this.find({ isDeleted: { $ne: true } });
   next();
 };
 
-const filterDeletedOne = function (next: any) {
+const filterDeletedOne = function (this: any, next: any) {
   this.find({ isDeleted: { $ne: true } });
   next();
 };
 
-const filterDeletedAggregate = function (next: any) {
+const filterDeletedAggregate = function (this: any, next: any) {
   this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
   next();
 };
 
 // Apply middleware to all schemas
-[
-  bannerSchema,
-  gallerySchema,
-  contactSchema,
-  aboutSchema,
-  navbarSchema,
-  calendarSchema,
-].forEach((schema) => {
-  schema.pre("find", filterDeleted);
-  schema.pre("findOne", filterDeletedOne);
-  schema.pre("aggregate", filterDeletedAggregate);
-});
+bannerSchema.pre("find", filterDeleted);
+bannerSchema.pre("findOne", filterDeletedOne);
+bannerSchema.pre("aggregate", filterDeletedAggregate);
+
+gallerySchema.pre("find", filterDeleted);
+gallerySchema.pre("findOne", filterDeletedOne);
+gallerySchema.pre("aggregate", filterDeletedAggregate);
+
+contactSchema.pre("find", filterDeleted);
+contactSchema.pre("findOne", filterDeletedOne);
+contactSchema.pre("aggregate", filterDeletedAggregate);
+
+aboutSchema.pre("find", filterDeleted);
+aboutSchema.pre("findOne", filterDeletedOne);
+aboutSchema.pre("aggregate", filterDeletedAggregate);
+
+navbarSchema.pre("find", filterDeleted);
+navbarSchema.pre("findOne", filterDeletedOne);
+navbarSchema.pre("aggregate", filterDeletedAggregate);
+
+calendarSchema.pre("find", filterDeleted);
+calendarSchema.pre("findOne", filterDeletedOne);
+calendarSchema.pre("aggregate", filterDeletedAggregate);
 
 // Static methods for all models
 bannerSchema.statics.isBannerExists = async function (id: string) {

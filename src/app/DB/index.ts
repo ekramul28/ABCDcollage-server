@@ -18,6 +18,7 @@ export { connectDB };
 // Seed super admin
 import { User } from "../modules/user/user.model";
 import { UserRole } from "../modules/auth/auth.types";
+// import { UserRole } from "../modules/auth/auth.types";
 
 const superUser = {
   id: "SUPER_ADMIN_001",

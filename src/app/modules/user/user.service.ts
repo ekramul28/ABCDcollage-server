@@ -12,6 +12,7 @@ import { Admin } from "../admin/admin.model";
 import { Teacher } from "../teacher/teacher.model";
 import { TTeacher } from "../teacher/teacher.interface";
 import { UserRole } from "../auth/auth.types";
+// import { UserRole } from "../auth/auth.types";
 
 const createTeacherIntoDB = async (
   file: any,
@@ -133,7 +134,7 @@ const createAdminIntoDB = async (
   }
 };
 
-const getMe = async (userId: number, role: string) => {
+const getMe = async (userId: number | string, role: string) => {
   let result = null;
 
   if (role === UserRole.ADMIN) {
