@@ -1,57 +1,87 @@
-import { Request, Response } from "express";
-import { AuthService } from "./auth.service";
-import { LoginCredentials, RegisterData } from "./auth.types";
+import httpStatus from 'http-status';
+import config from '../../config';
+import AppError from '../../errors/AppError';
+import catchAsync from '../../utils/catchAsync';
+import sendResponse from '../../utils/sendResponse';
+import { AuthServices } from './auth.service';
 
-export class AuthController {
-  private authService: AuthService;
+const loginUser = catchAsync(async (req, res) => {
+  const result = await AuthServices.loginUser(req.body);
+  const { refreshToken, accessToken, needsPasswordChange } = result;
 
-  constructor() {
-    this.authService = new AuthService();
+  res.cookie('refreshToken', refreshToken, {
+    secure: config.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'none',
+    maxAge: 1000 * 60 * 60 * 24 * 365,
+  });
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User is logged in successfully!',
+    data: {
+      accessToken,
+      needsPasswordChange,
+    },
+  });
+});
+
+const changePassword = catchAsync(async (req, res) => {
+  const { ...passwordData } = req.body;
+
+  const result = await AuthServices.changePassword(req.user, passwordData);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Password is updated successfully!',
+    data: result,
+  });
+});
+
+const refreshToken = catchAsync(async (req, res) => {
+  const { refreshToken } = req.cookies;
+  const result = await AuthServices.refreshToken(refreshToken);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Access token is retrieved successfully!',
+    data: result,
+  });
+});
+
+const forgetPassword = catchAsync(async (req, res) => {
+  const userId = req.body.id;
+  const result = await AuthServices.forgetPassword(userId);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Reset link is generated successfully!',
+    data: result,
+  });
+});
+
+const resetPassword = catchAsync(async (req, res) => {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Something went wrong !');
   }
 
-  public async login(req: Request, res: Response): Promise<void> {
-    try {
-      const credentials: LoginCredentials = req.body;
-      const result = await this.authService.login(credentials);
+  const result = await AuthServices.resetPassword(req.body, token);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Password reset successfully!',
+    data: result,
+  });
+});
 
-      if (!result) {
-        res.status(401).json({ error: "Invalid credentials" });
-        return;
-      }
-
-      res.status(200).json({
-        message: "Login successful",
-        token: result.token,
-        user: result.user,
-      });
-    } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
-    }
-  }
-
-  public async register(req: Request, res: Response): Promise<void> {
-    try {
-      const userData: RegisterData = req.body;
-      const user = await this.authService.createUser(userData);
-      const token = await this.authService.generateToken(user);
-
-      res.status(201).json({
-        message: "Registration successful",
-        token,
-        user,
-      });
-    } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
-    }
-  }
-
-  public async logout(req: Request, res: Response): Promise<void> {
-    try {
-      // In a real implementation, you might want to invalidate the token
-      // This could involve adding it to a blacklist or removing it from storage
-      res.status(200).json({ message: "Logout successful" });
-    } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
-    }
-  }
-}
+export const AuthControllers = {
+  loginUser,
+  changePassword,
+  refreshToken,
+  forgetPassword,
+  resetPassword,
+};
