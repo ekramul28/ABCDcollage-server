@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
 // import { UserRole } from "../auth/auth.types";
@@ -51,7 +51,8 @@ router.delete(
 router.post(
   "/banner/video",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-  upload.single("video"),
+  upload.single("file"),
+
   HomeControllers.uploadBannerVideo
 );
 
@@ -84,7 +85,7 @@ router.delete(
 router.post(
   "/gallery/images",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-  upload.array("images", 10), // up to 10 images at once
+  upload.array("files", 10), // up to 10 images at once
   HomeControllers.uploadGalleryImages
 );
 

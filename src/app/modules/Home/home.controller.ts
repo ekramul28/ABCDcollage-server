@@ -262,9 +262,11 @@ const deleteNavbar = catchAsync(async (req, res) => {
   });
 });
 
-// Banner Video Upload Controller
+// Banner Video Upload Controller (handles both create and update)
 const uploadBannerVideo = catchAsync(async (req, res) => {
   let videoUrl = req.body.videoUrl;
+  console.log("file", req.file);
+  console.log("body", req.body);
   if (req.file) {
     const result = await sendVideoToCloudinary(
       req.file.filename,
@@ -272,26 +274,53 @@ const uploadBannerVideo = catchAsync(async (req, res) => {
     );
     videoUrl = result.secure_url;
   }
+  console.log(videoUrl);
   // Save or update the banner with the videoUrl (assume bannerId in body)
-  const { bannerId } = req.body;
-  if (!bannerId || !videoUrl) {
+  const { bannerId, create, ...bannerData } = req.body;
+
+  if (!videoUrl) {
     sendResponse(res, {
       statusCode: httpStatus.BAD_REQUEST,
       success: false,
-      message: "bannerId and videoUrl (or file) are required",
+      message: "videoUrl (or file) is required",
       data: null,
     });
     return;
   }
-  const updatedBanner = await HomeServices.updateBannerIntoDB(bannerId, {
-    videoUrl,
-  });
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Banner video uploaded/linked successfully",
-    data: updatedBanner,
-  });
+
+  let bannerResult;
+  if (create === "true" || create === true) {
+    // Create new banner with videoUrl and any other provided banner data
+    bannerResult = await HomeServices.createBannerIntoDB({
+      ...bannerData,
+      videoUrl,
+    });
+    sendResponse(res, {
+      statusCode: httpStatus.CREATED,
+      success: true,
+      message: "Banner with video created successfully",
+      data: bannerResult,
+    });
+  } else {
+    if (!bannerId) {
+      sendResponse(res, {
+        statusCode: httpStatus.BAD_REQUEST,
+        success: false,
+        message: "bannerId is required for update",
+        data: null,
+      });
+      return;
+    }
+    bannerResult = await HomeServices.updateBannerIntoDB(bannerId, {
+      videoUrl,
+    });
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Banner video uploaded/linked successfully",
+      data: bannerResult,
+    });
+  }
 });
 
 // Gallery Multiple Image Upload Controller
