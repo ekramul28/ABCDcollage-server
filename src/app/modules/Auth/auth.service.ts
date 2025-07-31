@@ -165,9 +165,9 @@ const refreshToken = async (token: string) => {
   };
 };
 
-const forgetPassword = async (userId: string) => {
+const forgetPassword = async (email: string) => {
   // checking if the user is exist
-  const user = await User.isUserExistsByCustomId(userId);
+  const user = await User.isUserExistsByCustomId(email);
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "This user is not found !");
@@ -187,7 +187,7 @@ const forgetPassword = async (userId: string) => {
   }
 
   const jwtPayload = {
-    userId: user.id,
+    email: user.email,
     role: user.role,
   };
 
