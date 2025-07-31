@@ -4,10 +4,10 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../../config";
 import AppError from "../../errors/AppError";
 import { sendEmail } from "../../utils/sendEmail";
-// import { User } from '../User/user.model';
+
+import { User } from "../user/user.model";
 import { TLoginUser } from "./auth.interface";
 import { createToken, verifyToken } from "./auth.utils";
-import { User } from "../user/user.model";
 
 const loginUser = async (payload: TLoginUser) => {
   // checking if the user is exist'

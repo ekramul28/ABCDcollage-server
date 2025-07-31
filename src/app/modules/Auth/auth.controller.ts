@@ -6,12 +6,10 @@ import sendResponse from "../../utils/sendResponse";
 import { AuthServices } from "./auth.service";
 
 const loginUser = catchAsync(async (req, res) => {
-  console.log("in login", req.body);
   const result = await AuthServices.loginUser(req.body);
   const { refreshToken, accessToken, needsPasswordChange } = result;
-  console.log("hmm", result);
   res.cookie("refreshToken", refreshToken, {
-    secure: config.NODE_ENV === "development",
+    secure: config.NODE_ENV === "production",
     httpOnly: true,
     sameSite: "none",
     maxAge: 1000 * 60 * 60 * 24 * 365,

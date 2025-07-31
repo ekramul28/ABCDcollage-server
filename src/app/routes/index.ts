@@ -8,7 +8,7 @@ import { TeacherRoutes } from "../modules/teacher/teacher.route";
 import { HomeRoutes } from "../modules/Home/home.route";
 import { ResultRoutes } from "../modules/result/result.routes";
 import { SmsRoutes } from "../modules/sms/sms.routes";
-import { AuthRoutes } from "../modules/auth/auth.route";
+import { AuthRoutes } from "../modules/Auth/auth.route";
 
 const router = Router();
 
