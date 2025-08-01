@@ -323,6 +323,17 @@ const uploadBannerVideo = catchAsync(async (req, res) => {
   }
 });
 
+const getBannerVideo = catchAsync(async (req, res) => {
+  const result = await HomeServices.BannerVideoIntoDB();
+  console.log(result);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Banner video is retrieved successfully",
+    data: result,
+  });
+});
+
 // Gallery Multiple Image Upload Controller
 const uploadGalleryImages = catchAsync(async (req, res) => {
   if (!req.files || !(req.files instanceof Array) || req.files.length === 0) {
@@ -425,6 +436,7 @@ export const HomeControllers = {
   deleteBanner,
   updateBanner,
   uploadBannerVideo,
+  getBannerVideo,
 
   // Gallery controllers
   createGallery,

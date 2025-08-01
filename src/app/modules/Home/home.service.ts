@@ -58,6 +58,11 @@ const updateBannerIntoDB = async (id: string, payload: Partial<TBanner>) => {
   });
   return result;
 };
+const BannerVideoIntoDB = async () => {
+  const result = await Banner.find({});
+
+  return result;
+};
 
 const deleteBannerFromDB = async (id: string) => {
   const session = await mongoose.startSession();
@@ -324,6 +329,7 @@ export const HomeServices = {
   updateBannerIntoDB,
   deleteBannerFromDB,
   updateBannerVideo, // explicit video service
+  BannerVideoIntoDB,
 
   // Gallery services
   getAllGalleryFromDB,
