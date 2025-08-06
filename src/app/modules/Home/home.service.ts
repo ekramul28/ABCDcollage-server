@@ -22,6 +22,7 @@ import {
   About,
   Navbar,
   Calendar,
+  BannerVideo,
 } from "./home.model";
 
 // Banner Services
@@ -41,26 +42,29 @@ const getAllBannersFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
+//Banner Video Service
+
 const getSingleBannerFromDB = async (id: string) => {
   const result = await Banner.findById(id);
   return result;
 };
-
+//create banner
 const createBannerIntoDB = async (payload: TBanner) => {
   const result = await Banner.create(payload);
   return result;
 };
 
 const updateBannerIntoDB = async (id: string, payload: Partial<TBanner>) => {
-  const result = await Banner.findByIdAndUpdate(id, payload, {
+  const result = await BannerVideo.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
   });
   return result;
 };
 const BannerVideoIntoDB = async () => {
-  const result = await Banner.find({});
-
+  console.log("ok");
+  const result = await BannerVideo.find();
+  console.log("result", result);
   return result;
 };
 

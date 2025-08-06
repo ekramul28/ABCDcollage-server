@@ -80,6 +80,60 @@ const bannerSchema = new Schema<TBanner, BannerModel>(
   }
 );
 
+const bannerVideoSchema = new Schema<TBanner, BannerModel>(
+  {
+    id: {
+      type: String,
+      required: [true, "ID is required"],
+      unique: true,
+    },
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+      trim: true,
+      maxlength: [100, "Title can not be more than 100 characters"],
+    },
+    subtitle: {
+      type: String,
+      trim: true,
+      maxlength: [200, "Subtitle can not be more than 200 characters"],
+    },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: [500, "Description can not be more than 500 characters"],
+    },
+
+    videoUrl: {
+      type: String,
+    },
+
+    status: {
+      type: String,
+      enum: {
+        values: ContentStatus,
+        message: "{VALUE} is not a valid status",
+      },
+      default: "active",
+    },
+    order: {
+      type: Number,
+      required: [true, "Order is required"],
+      default: 0,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
+  }
+);
+
 // Gallery Schema
 const gallerySchema = new Schema<TGalleryItem, GalleryModel>(
   {
@@ -411,6 +465,10 @@ calendarSchema.statics.isCalendarEventExists = async function (id: string) {
 
 // Export models
 export const Banner = model<TBanner, BannerModel>("Banner", bannerSchema);
+export const BannerVideo = model<TBanner, BannerModel>(
+  "BannerVideo",
+  bannerVideoSchema
+);
 export const Gallery = model<TGalleryItem, GalleryModel>(
   "Gallery",
   gallerySchema
