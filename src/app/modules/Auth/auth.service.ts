@@ -8,6 +8,7 @@ import { sendEmail } from "../../utils/sendEmail";
 import { User } from "../user/user.model";
 import { TLoginUser } from "./auth.interface";
 import { createToken, verifyToken } from "./auth.utils";
+import { availableMemory } from "process";
 
 const loginUser = async (payload: TLoginUser) => {
   // checking if the user is exist'
@@ -216,7 +217,7 @@ const resetPassword = async (
   }
   // checking if the user is already deleted
   const isDeleted = user?.isDeleted;
-
+  // if isDeleted availableMemory
   if (isDeleted) {
     throw new AppError(httpStatus.FORBIDDEN, "This user is deleted !");
   }
