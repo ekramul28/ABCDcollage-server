@@ -55,6 +55,7 @@ router.post(
 
   HomeControllers.uploadBannerVideo
 );
+// this is video
 router.get(
   "/banner/video",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
