@@ -1,5 +1,6 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 
+//This is CreateToken function that is
 export const createToken = (
   jwtPayload: { email: string; role: string },
   secret: string,
